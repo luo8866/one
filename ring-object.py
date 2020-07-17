@@ -1,14 +1,65 @@
+import os
+import zipfile
+import csv
+class Read:
+    def __init__(self):
+        pass
+
+    def get_file(self, filepath, josephus):
+        for root, dirs, files in os.walk(filepath):
+            #dirs[:] = []   #可以避开子文件（之前解压的文件）
+            
+            for i in range(len(files)):
+                if files[i][-4: ] == '.txt':
+                    with open(os.path.join(filepath, files[i]), 'r', encoding='UTF-8')as fp:
+                        for line in fp.readlines():
+                            line = line.split('\n', 1)[0]
+                            line = line.split(',')
+                            josephus.append(Person(line[0], line[1], line[2]))
+
+                elif files[i][-4: ] == '.csv':
+                    with open(os.path.join(filepath, files[i]), 'r', encoding='UTF-8')as fp_csv:
+                        csv_file = csv.reader(fp_csv)#按行取（取出的已经是一行的内容了）
+                        for line in csv_file:
+                            josephus.append(Person(line[0], line[1], line[2]))
+
+                elif files[i][-4: ] == '.zip':
+                    unzip_path = './people/unzip'
+
+                    #先判断解压
+                    if not os.path.exists(unzip_path):
+                        zip_file_path = os.path.join(filepath, files[i])
+                        with zipfile.ZipFile(zip_file_path) as zf:
+                            zf.extractall(path=unzip_path)
+                        zf.close()
+
+                    for root, dirs, unzip in os.walk(unzip_path):
+                        #dirs[:] = []
+                        for k in range(len(unzip)):
+                            if unzip[k][-4:] == '.txt':
+                                with open(os.path.join(unzip_path, unzip[k]), 'r', encoding='UTF-8')as fp_txt:
+                                    for line in fp_txt.readlines():
+                                        line = line.split('\n', 1)[0]
+                                        line = line.split(',')
+                                        josephus.append(Person(line[0], line[1], line[2]))
+
+                            elif unzip[k][-4: ] == '.csv':
+                                with open(os.path.join(filepath, unzip[k]), 'r', encoding='UTF-8')as fp_csv:
+                                    csv_file = csv.reader(fp_csv)
+                                    for line in csv_file:
+                                        josephus.append(Person(line[0], line[1], line[2]))
+
+class Person:
+    def __init__(self, name, age, like):  # 人的信息：姓名、年龄、爱好
+        self.name = name
+        self.age = age
+        self.like = like
+        
 class Josephus:
-    def __init__(self, start, interval):
+    def __init__(self, start, interval): 
         self.start = start
         self.interval = interval
         self.people = []
-
-    def append(self, person):
-        self.people.append(person)
-
-    def pop(self):
-        self.people.pop()
 
     def __iter__(self):
         return self
@@ -17,27 +68,25 @@ class Josephus:
         while len(self.people) > 1:
             self.start = (self.start + self.interval - 1) % len(self.people)
             self.people.pop(self.start)
-           #print(self.people)
+            remain_list = []
+            #for i in range(len(self.people)):
+            #    remain_list.append(self.people[i].name)
+            #print(remain_list)
         return self.people
 
-def information():
-    fp = open('information.txt')
-    people_information = fp.readlines()
-    fp.close()
-    people = []
-    for line in people_information:
-        line = list(line.strip().split(' '))
-        people.append(line)
-    return people
-    
-J1 = Josephus(2, 3)
-people_information = information()
-#print(people_information)
-for i in range(8):
-    J1.people.append(people_information[i])
+    def append(self, Person):
+        self.people.append(Person)
 
-last_people = next(J1)
+    #def pop(self):
+     #   self.people.pop()  #上面next用了pop后这里好像没起作用
+
+test_ring = Josephus(3, 4)
+read_file = Read()
+read_file.get_file('D:\software\python\code\people', test_ring)
+
+last_people = next(test_ring)
+#for i in range(len(test_ring.people)):
+#        print(test_ring.people[i].name)
+
 for i in range(len(last_people)):
-    print(last_people[i])
-
-
+    print(last_people[i].name, last_people[i].age, last_people[i].like)
