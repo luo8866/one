@@ -1,8 +1,0 @@
-wang4,9,music
-liu4,8,moive
-luo4,11,sleep
-zhang4,12,math
-zhao4,8,play
-li4,9,study
-qi4,7,games
-xiaoming4,12,food
